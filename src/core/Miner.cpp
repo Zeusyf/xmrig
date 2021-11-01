@@ -523,8 +523,10 @@ void xmrig::Miner::setEnabled(bool enabled)
 
 void xmrig::Miner::setJob(const Job &job, bool donate)
 {
-    for (IBackend *backend : d_ptr->backends) {
-        backend->prepare(job);
+    if (job.algorithm() != Algorithm::PAUSE) {
+        for (IBackend *backend : d_ptr->backends) {
+            backend->prepare(job);
+        }
     }
 
 #   ifdef XMRIG_ALGO_RANDOMX
@@ -532,6 +534,11 @@ void xmrig::Miner::setJob(const Job &job, bool donate)
         stop();
     }
 #   endif
+
+    if (job.algorithm() == Algorithm::PAUSE) {
+        LOG_INFO("%s " GREEN_BOLD("paused") " no randomx job", Tags::miner());
+        stop();
+    }
 
     d_ptr->algorithm = job.algorithm();
 
@@ -548,7 +555,7 @@ void xmrig::Miner::setJob(const Job &job, bool donate)
     }
 
 #   ifdef XMRIG_ALGO_RANDOMX
-    const bool ready = d_ptr->initRX();
+    const bool ready = job.algorithm() != Algorithm::PAUSE ? d_ptr->initRX() : true;
 #   else
     constexpr const bool ready = true;
 #   endif

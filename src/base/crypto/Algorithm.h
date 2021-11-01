@@ -77,6 +77,7 @@ public:
         AR2_WRKZ        = 0x61120000,   // "argon2/wrkz"      Argon2id (WRKZ)
         ASTROBWT_DERO   = 0x41000000,   // "astrobwt"         AstroBWT (Dero)
         KAWPOW_RVN      = 0x6b0f0000,   // "kawpow/rvn"       KawPow (RVN)
+        PAUSE           = 0x72171477,   // pause mining
     };
 
     enum Family : uint32_t {
@@ -158,6 +159,8 @@ public:
     static const char *kKAWPOW;
     static const char *kKAWPOW_RVN;
 #   endif
+
+    static const char* kPAUSE;
 
     inline Algorithm() = default;
     inline Algorithm(const char *algo) : m_id(parse(algo))  {}

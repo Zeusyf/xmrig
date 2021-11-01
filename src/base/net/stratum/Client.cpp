@@ -469,6 +469,9 @@ bool xmrig::Client::send(BIO *bio)
 
 bool xmrig::Client::verifyAlgorithm(const Algorithm &algorithm, const char *algo) const
 {
+    if (algorithm == Algorithm::PAUSE) {
+        return true;
+    }
     if (!algorithm.isValid()) {
         if (!isQuiet()) {
             if (algo == nullptr) {

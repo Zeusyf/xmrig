@@ -198,6 +198,7 @@ int64_t xmrig::Client::submit(const JobResult &result)
     char *data  = m_tempBuf.data() + 16;
     char *signature = m_tempBuf.data() + 88;
 
+    printf("Result nonce: %" PRIu64 "\n", result.nonce);
     Cvt::toHex(nonce, sizeof(uint32_t) * 2 + 1, reinterpret_cast<const uint8_t *>(&result.nonce), sizeof(uint32_t));
     Cvt::toHex(data, 65, result.result(), 32);
 
@@ -395,9 +396,12 @@ bool xmrig::Client::parseJob(const rapidjson::Value &params, int *code)
         }
     }
 
-    if (!job.setTarget(params["target"].GetString())) {
+    const char *target = Json::getString(params, "target");
+    if (target != nullptr && !job.setTarget(target)) {
         *code = 5;
         return false;
+    } else {
+      job.setDiff(Json::getInt64(params, "difficulty"));
     }
 
     job.setHeight(Json::getUint64(params, "height"));
@@ -791,9 +795,9 @@ void xmrig::Client::parseResponse(int64_t id, const rapidjson::Value &result, co
     if (id == 1) {
         int code = -1;
         if (!parseLogin(result, &code)) {
-            if (!isQuiet()) {
+            //if (!isQuiet()) {
                 LOG_ERR("%s " RED("login error code: ") RED_BOLD("%d"), tag(), code);
-            }
+            //}
 
             close();
             return;

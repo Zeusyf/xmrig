@@ -35,6 +35,7 @@
 #include "crypto/rx/RxDataset.h"
 #include "crypto/rx/RxVm.h"
 #include "net/JobResults.h"
+#include "3rdparty/rust-epic/src/lib.rs.h"
 
 
 #ifdef XMRIG_ALGO_RANDOMX
@@ -316,7 +317,17 @@ void xmrig::CpuWorker<N>::start()
                 };
             }
 
-            if (valid) {
+            if (job.algorithm() == Algorithm::RX_EPIC) {
+                for (size_t i = 0; i < N; ++i) {
+                    rust::Slice<const ::std::uint8_t> hash(m_hash + (i * 32), 32);
+                    if (check_diff(hash, job.diff())) {
+                        JobResults::submit(job, current_job_nonces[i], m_hash + (i * 32), job.hasMinerSignature() ? miner_signature_saved : nullptr);
+                    }
+                }
+
+                m_count += N;
+            }
+            else if (valid) {
                 for (size_t i = 0; i < N; ++i) {
                     const uint64_t value = *reinterpret_cast<uint64_t*>(m_hash + (i * 32) + 24);
 

@@ -38,6 +38,7 @@ public:
         DERO,
         GRAFT,
         KEVA,
+        EPIC,
         RAVEN,
         WOWNERO,
         MAX

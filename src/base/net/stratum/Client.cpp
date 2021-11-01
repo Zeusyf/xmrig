@@ -198,7 +198,6 @@ int64_t xmrig::Client::submit(const JobResult &result)
     char *data  = m_tempBuf.data() + 16;
     char *signature = m_tempBuf.data() + 88;
 
-    printf("Result nonce: %" PRIu64 "\n", result.nonce);
     Cvt::toHex(nonce, sizeof(uint32_t) * 2 + 1, reinterpret_cast<const uint8_t *>(&result.nonce), sizeof(uint32_t));
     Cvt::toHex(data, 65, result.result(), 32);
 
@@ -795,9 +794,9 @@ void xmrig::Client::parseResponse(int64_t id, const rapidjson::Value &result, co
     if (id == 1) {
         int code = -1;
         if (!parseLogin(result, &code)) {
-            //if (!isQuiet()) {
+            if (!isQuiet()) {
                 LOG_ERR("%s " RED("login error code: ") RED_BOLD("%d"), tag(), code);
-            //}
+            }
 
             close();
             return;
